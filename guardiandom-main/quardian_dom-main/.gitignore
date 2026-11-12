@@ -1,0 +1,14 @@
+/backend_no_db_complete/public/assets/
+/assets/
+*.pretty.js
+*.comments.pt.md
+temp_*.html
+/node_modules/
+/dist/
+.DS_Store
+
+# Local environment secrets
+.env
+.env.*
+!.env.example
+!**/.env.example

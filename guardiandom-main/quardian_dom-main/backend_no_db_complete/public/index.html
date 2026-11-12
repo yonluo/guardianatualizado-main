@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#082c67" />
+    <title>Guardian Angel — Segurança em comunidade</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="./guardian.css" />
+  </head>
+  <body>
+    <div id="authScreen" class="auth-shell">
+      <section class="auth-brand">
+        <div class="brand auth-brand-lockup">
+          <span class="brand-mark"><img src="./assets/guardian-angel-mark.png" alt="" /></span>
+          <span class="brand-title">Guardian <b>Angel</b></span>
+        </div>
+        <div class="auth-copy">
+          <span class="eyebrow">SEGURANÇA COMPARTILHADA</span>
+          <h1>Mais perto.<br /><em>Mais protegido.</em></h1>
+          <p>
+            Conecte sua comunidade, acompanhe câmeras autorizadas e compartilhe informações com quem
+            você confia.
+          </p>
+          <div class="auth-points">
+            <span>✓ Controle de acesso</span><span>✓ Comunidade privada</span
+            ><span>✓ Alertas em um só lugar</span>
+          </div>
+        </div>
+        <div class="auth-foot">Sua segurança, suas regras.</div>
+      </section>
+      <section class="auth-panel">
+        <div class="auth-mobile-brand brand">
+          <span class="brand-mark"><img src="./assets/guardian-angel-mark.png" alt="" /></span>
+          <span>Guardian <b>Angel</b></span>
+        </div>
+        <div class="auth-form-wrap">
+          <span class="eyebrow" id="authEyebrow">BEM-VINDO DE VOLTA</span>
+          <h2 id="authTitle">Entre na sua conta</h2>
+          <p class="muted" id="authSub">Acesse seu espaço de segurança.</p>
+          <form id="loginForm">
+            <label
+              >E-mail<input
+                name="email"
+                type="email"
+                placeholder="voce@email.com"
+                required
+                autocomplete="email" /></label
+            ><label
+              >Senha<input
+                name="password"
+                type="password"
+                placeholder="Sua senha"
+                required
+                autocomplete="current-password"
+                minlength="6" /></label
+            ><button class="btn primary full" type="submit">Entrar <span>→</span></button>
+          </form>
+          <form id="registerForm" class="hidden">
+            <label
+              >Nome completo<input
+                name="name"
+                required
+                placeholder="Como podemos te chamar?" /></label
+            ><label
+              >E-mail<input
+                name="email"
+                type="email"
+                required
+                placeholder="voce@email.com" /></label
+            ><label>CPF<input name="cpf" required placeholder="000.000.000-00" /></label
+            ><label>Data de nascimento<input name="birthdate" type="date" required /></label
+            ><label
+              >Senha<input
+                name="password"
+                type="password"
+                minlength="6"
+                required
+                placeholder="Mínimo de 6 caracteres" /></label
+            ><button class="btn primary full" type="submit">
+              Criar minha conta <span>→</span>
+            </button>
+          </form>
+          <div class="auth-switch">
+            <span id="switchText">Ainda não tem uma conta?</span>
+            <button id="switchAuth" class="link-btn">Criar conta</button>
+          </div>
+          <p id="authError" class="error" role="alert"></p>
+          <div class="secure-note">🔒 Seus dados e suas câmeras ficam sob seu controle.</div>
+        </div>
+      </section>
+    </div>
+    <div id="app" class="app-shell hidden">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark"><img src="./assets/guardian-angel-mark.png" alt="" /></span>
+          <span>Guardian <b>Angel</b></span>
+        </div>
+        <div class="workspace-label">ESPAÇO PESSOAL</div>
+        <nav id="mainNav">
+          <button class="nav-item active" data-view="overview">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-8h6v8"/></svg>
+            Visão geral
+          </button>
+          <button class="nav-item" data-view="feed">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 3h14a2 2 0 0 1 2 2v16H5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z"/><path d="M6 17h9M6 13h12M6 9h12"/></svg>
+            Feed
+          </button>
+          <button class="nav-item" data-view="alerts">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+            Alertas
+          </button>
+          <button class="nav-item" data-view="map">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            Mapa de câmeras <b class="nav-count" id="cameraCount">0</b>
+          </button>
+          <button class="nav-item" data-view="cameras">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="4"/></svg>
+            Minhas câmeras
+          </button>
+          <button class="nav-item" data-view="recordings">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/></svg>
+            Gravações
+          </button>
+          <button class="nav-item" data-view="messages">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8Z"/><path d="M8 10h8M8 14h5"/></svg>
+            Mensagens <i class="unread-dot"></i>
+          </button>
+          <button class="nav-item" data-view="contacts">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>
+            Contatos e grupos
+          </button>
+          <button class="nav-item" data-view="settings">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M2 14h4M10 8h4M18 16h4"/></svg>
+            Configurações
+          </button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="help-card">
+            <span class="help-icon"><svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></span><b>Segurança começa junto.</b>
+            <p>Compartilhe com responsabilidade e mantenha suas permissões atualizadas.</p>
+          </div>
+          <button class="profile-mini" id="profileButton">
+            <span class="avatar" id="userAvatar">U</span
+            ><span class="profile-names"
+              ><b id="userName">Usuário</b><small id="userEmail">email</small></span
+            ><span class="more">···</span></button
+          ><button id="logoutBtn" class="logout-btn">↪ Sair da conta</button>
+        </div>
+      </aside>
+      <main class="main-area">
+        <header class="topbar">
+          <div>
+            <div class="breadcrumb">Guardian <span>/</span> <b id="pageCrumb">Visão geral</b></div>
+            <h1 id="pageTitle">Bom ter você por aqui <span class="wave">✦</span></h1>
+          </div>
+          <div class="top-actions">
+            <span class="secure-pill"><i></i> Conta protegida</span
+            ><div class="notification-anchor">
+              <button
+                class="icon-btn"
+                title="Notificações"
+                id="notificationBtn"
+                type="button"
+                aria-label="Abrir notificações"
+                aria-expanded="false"
+                aria-controls="notificationPanel"
+              >
+                <svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+                <sup id="notificationCount" class="hidden">0</sup>
+              </button>
+              <section id="notificationPanel" class="notification-panel hidden" aria-label="Central de notificações">
+                <header class="notification-panel-header">
+                  <div>
+                    <span class="eyebrow">GUARDIAN ANGEL</span>
+                    <h2>Notificações</h2>
+                  </div>
+                  <button type="button" class="notification-read-all" id="markAllNotificationsRead">Marcar todas como lidas</button>
+                </header>
+                <div id="notificationList" class="notification-list" aria-live="polite">
+                  <div class="notification-state">Carregando notificações...</div>
+                </div>
+                <footer class="notification-panel-footer">Atualizações importantes da sua rede e dos seus dispositivos.</footer>
+              </section>
+            </div
+            ><button class="avatar top-avatar" id="topAvatar">U</button>
+          </div>
+        </header>
+        <section id="view-overview" class="view">
+          <div class="welcome-banner">
+            <div>
+              <span class="eyebrow light">SUA REDE DE PROTEÇÃO</span>
+              <h2>Guardian <span>Angel</span></h2>
+              <p>Uma rede de proteção para a sua cidade.</p>
+              <button class="btn white" data-goto="map">Explorar mapa <span>→</span></button>
+            </div>
+            <div class="banner-art" aria-hidden="true">
+              <img src="./assets/guardian-angel-mark.png" alt="" />
+            </div>
+          </div>
+          <div class="section-heading">
+            <div>
+              <h2>Seu painel</h2>
+              <p class="muted">Um resumo da sua comunidade.</p>
+            </div>
+            <span class="date-chip" id="todayDate"></span>
+          </div>
+          <div class="stat-grid">
+            <article class="stat-card">
+              <div class="stat-top">
+                <span>Câmeras cadastradas</span><span class="stat-icon purple"><svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="4"/></svg></span>
+              </div>
+              <div class="stat-value" id="statCameras">0</div>
+              <div class="stat-foot">Gerencie seus dispositivos</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span>Contatos</span><span class="stat-icon blue"><svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span></div>
+              <div class="stat-value" id="statContacts">0</div>
+              <div class="stat-foot">Pessoas da sua rede</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top"><span>Grupos</span><span class="stat-icon orange"><svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0M15 15a4.5 4.5 0 0 1 5.5 4.3"/></svg></span></div>
+              <div class="stat-value" id="statGroups">0</div>
+              <div class="stat-foot">Conversas em comunidade</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-top">
+                <span>Acessos compartilhados</span><span class="stat-icon green"><svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/><path d="M5 5v14h14"/></svg></span>
+              </div>
+              <div class="stat-value" id="statShares">0</div>
+              <div class="stat-foot">Permissões sob seu controle</div>
+            </article>
+          </div>
+          <div class="content-grid">
+            <article class="panel map-preview">
+              <div class="panel-heading">
+                <div>
+                  <h3>Mapa da comunidade</h3>
+                  <p class="muted">Câmeras publicadas voluntariamente.</p>
+                </div>
+                <button class="text-action" data-goto="map">Abrir mapa ↗</button>
+              </div>
+              <div class="map-surface">
+                <div class="map-road road-one"></div>
+                <div class="map-road road-two"></div>
+                <div class="map-road road-three"></div>
+                <div class="map-block block-one"></div>
+                <div class="map-block block-two"></div>
+                <div class="map-block block-three"></div>
+                <div class="map-block block-four"></div>
+                <div class="map-label label-one">CENTRO</div>
+                <div class="map-label label-two">ÁREA RESIDENCIAL</div>
+                <div class="map-empty" id="mapEmpty">
+                  <span class="map-empty-icon"><svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><b>Seu mapa começa aqui</b
+                  ><small
+                    >Câmeras reais ficam privadas ao proprietário. Nenhuma transmissão é publicada
+                    automaticamente.</small
+                  ><button class="btn primary small" data-goto="cameras">Cadastrar câmera</button>
+                </div>
+              </div>
+              <div class="panel-footer">
+                <span class="legend-dot"></span> Câmeras públicas
+                <span class="muted" id="mapCameraText">· Nenhuma câmera publicada</span>
+              </div>
+            </article>
+            <article class="panel quick-panel">
+              <div class="panel-heading">
+                <div>
+                  <h3>Acesso rápido</h3>
+                  <p class="muted">O que você precisa agora?</p>
+                </div>
+              </div>
+              <button class="quick-action" data-goto="cameras">
+                <span class="quick-icon violet"><svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="4"/></svg></span
+                ><span><b>Adicionar câmera</b><small>Cadastre um dispositivo</small></span
+                ><span class="quick-arrow">→</span></button
+              ><button class="quick-action" data-goto="messages">
+                <span class="quick-icon cyan"><svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8Z"/><path d="M8 10h8M8 14h5"/></svg></span
+                ><span><b>Iniciar conversa</b><small>Fale com seus contatos</small></span
+                ><span class="quick-arrow">→</span></button
+              ><button class="quick-action" data-goto="contacts">
+                <span class="quick-icon amber"><svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span
+                ><span><b>Criar grupo</b><small>Reúna pessoas de confiança</small></span
+                ><span class="quick-arrow">→</span>
+              </button>
+              <div class="privacy-tip">
+                <span><svg class="overview-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+                <p>
+                  <b>Dica de privacidade</b><br />Revise quem pode acessar suas câmeras
+                  regularmente.
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+        <section id="view-feed" class="view hidden">
+          <div class="view-intro feed-page-intro">
+            <div>
+              <span class="eyebrow">A CIDADE EM TEMPO REAL</span>
+              <h2>Feed da comunidade</h2>
+              <p>Relatos, alertas e conversas da sua região.</p>
+            </div>
+            <button class="btn secondary small" type="button" data-goto="alerts">Ver alertas <span>→</span></button>
+          </div>
+          <section class="feed-stories" aria-labelledby="feedStoriesTitle">
+            <div class="feed-stories-heading">
+              <div>
+                <h3 id="feedStoriesTitle">Stories e alertas</h3>
+                  <p>Relatos da comunidade e alertas ativos. Cada Story expira em 24 horas.</p>
+              </div>
+              <span class="feed-live-label"><i></i> Comunidade</span>
+            </div>
+            <div id="feedStories" class="feed-stories-list" aria-label="Stories recentes">
+              <button class="feed-story-card feed-story-create" id="newStoryButton" type="button" aria-label="Criar seu Story">
+                <span class="feed-story-ring"><span aria-hidden="true">＋</span></span>
+                <span class="feed-story-label">Seu Story</span>
+              </button>
+              <div id="feedStoriesList" class="feed-stories-items" aria-live="polite"></div>
+            </div>
+          </section>
+          <nav class="feed-category-nav" aria-label="Filtrar publicações por tema">
+            <span>Explorar</span>
+            <button type="button" class="active" data-feed-filter="all" aria-pressed="true">Tudo</button>
+            <button type="button" data-feed-filter="alertas" aria-pressed="false">Alertas</button>
+            <button type="button" data-feed-filter="Segurança" aria-pressed="false">Segurança</button>
+            <button type="button" data-feed-filter="Comunidade" aria-pressed="false">Comunidade</button>
+            <button type="button" data-feed-filter="Suporte" aria-pressed="false">Suporte</button>
+          </nav>
+          <div class="feed-grid">
+            <div class="feed-main-column">
+              <div class="panel feed-compose-panel">
+                <div class="feed-compose-heading">
+                  <span class="feed-compose-avatar" id="feedComposerAvatar">G</span>
+                  <div>
+                    <strong>Compartilhe com a comunidade</strong>
+                    <small>Um relato pode ajudar quem está por perto.</small>
+                  </div>
+                </div>
+                <form id="feedForm">
+                  <textarea
+                    name="text"
+                    rows="3"
+                    maxlength="280"
+                    aria-label="Texto da publicação"
+                    placeholder="O que está acontecendo na sua região?"
+                  ></textarea>
+                  <p class="feed-privacy-note">
+                    Evite incluir documentos ou dados pessoais nas fotos e vídeos.
+                  </p>
+                  <label class="file-field feed-file-field">
+                    <span class="feed-upload-label">＋ Foto ou vídeo</span>
+                    <input
+                      id="feedMediaInput"
+                      name="media"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                    />
+                    <small>JPG, PNG, WebP, MP4 ou WebM · até 4 MB</small>
+                  </label>
+                  <div id="feedMediaPreview" class="feed-media-preview hidden"></div>
+                  <div class="compose-row">
+                    <label>
+                      Categoria
+                      <select name="type">
+                        <option value="Aviso">Aviso</option>
+                        <option value="Segurança">Segurança</option>
+                        <option value="Comunidade">Comunidade</option>
+                        <option value="Suporte">Suporte</option>
+                      </select>
+                    </label>
+                    <button class="btn primary" type="submit">Publicar <span>→</span></button>
+                  </div>
+                </form>
+              </div>
+              <div class="feed-list-heading">
+                <div>
+                  <h3>Relatos recentes</h3>
+                  <p id="feedResultLabel">Publicações da comunidade</p>
+                </div>
+                <span class="feed-result-count" id="feedResultCount">0 relatos</span>
+              </div>
+              <div id="feedList" class="feed-list" aria-live="polite"></div>
+            </div>
+            <aside class="panel side-panel">
+              <div class="panel-head compact">
+                <div>
+                  <span class="eyebrow">REPUTAÇÃO</span>
+                  <h3>Seu nível</h3>
+                </div>
+              </div>
+              <div class="reputation-box">
+                <div class="score-ring" id="reputationRing" aria-label="Pontuação 0">
+                  <span id="reputationScore">0</span>
+                </div>
+                <div>
+                  <strong id="reputationLevel">Carregando nível...</strong>
+                  <small id="reputationSummary"
+                    >Nível de participação calculado a partir da atividade na comunidade.</small
+                  >
+                </div>
+              </div>
+              <p class="tiny muted">
+                Até 80 pontos: 10 por publicação (máximo 5) e 15 por câmera cadastrada (máximo 2). O
+                nível representa atividade, não confiabilidade verificada.
+              </p>
+              <div class="mini-list">
+                <h4>Conquistas</h4>
+                <div id="miniAchievements" class="mini-badges"></div>
+              </div>
+              <div class="mini-list">
+                <h4>Comentário sobre o Guardian</h4>
+                <form id="siteFeedbackForm" class="site-feedback-form">
+                  <label for="siteFeedbackComment">
+                    Envie uma sugestão ou conte como podemos melhorar.
+                  </label>
+                  <textarea
+                    id="siteFeedbackComment"
+                    name="comment"
+                    rows="3"
+                    maxlength="500"
+                    required
+                    placeholder="Escreva uma sugestão. O comentário não será exibido publicamente."
+                  ></textarea>
+                  <small id="siteFeedbackStatus" class="muted" aria-live="polite">
+                    Seu comentário fica associado à conta e não altera a pontuação de reputação.
+                  </small>
+                  <button class="btn secondary small" type="submit">Enviar comentário</button>
+                </form>
+              </div>
+              <div class="mini-list">
+                <h4>Comentários recentes</h4>
+                <div id="feedComments" class="comment-stack small"></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+        <div id="storyComposerModal" class="modal-backdrop hidden">
+          <section class="modal story-composer-modal" aria-labelledby="storyComposerTitle">
+            <button class="modal-close" type="button" data-close="storyComposerModal" aria-label="Fechar">×</button>
+            <span class="eyebrow">STORY · 24 HORAS</span>
+            <h2 id="storyComposerTitle">Conte o que aconteceu</h2>
+            <p class="muted">Seu relato fica disponível para a comunidade por 24 horas.</p>
+            <form id="storyForm" class="stack-form">
+              <label>Seu relato
+                <textarea name="content" rows="4" maxlength="500" required placeholder="Descreva a situação com clareza e respeito..."></textarea>
+              </label>
+              <label>Categoria
+                <select name="category">
+                  <option value="Aviso">Aviso</option>
+                  <option value="Segurança">Segurança</option>
+                  <option value="Comunidade">Comunidade</option>
+                  <option value="Trânsito">Trânsito</option>
+                  <option value="Suporte">Suporte</option>
+                  <option value="Outros">Outros</option>
+                </select>
+              </label>
+              <label class="file-field story-file-field">Foto ou vídeo (opcional)
+                <input id="storyMediaInput" name="media" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" />
+                <small>JPG, PNG, WebP, MP4 ou WebM · até 4 MB</small>
+              </label>
+              <label class="check-card story-alert-toggle">
+                <input id="storyIsAlert" name="isAlert" type="checkbox" />
+                <span><strong>Publicar como alerta com BO</strong><small>O alerta fica visível à comunidade. O arquivo do BO fica criptografado e privado para você; o anexo não confirma autenticidade.</small></span>
+              </label>
+              <div id="storyAlertFields" class="story-alert-fields hidden">
+                <label>Número do BO<input name="reportNumber" maxlength="40" /></label>
+                <label>Data do BO<input name="reportDate" type="date" /></label>
+                <label class="file-field">Anexar BO
+                  <input id="storyEvidenceInput" name="reportEvidence" type="file" accept="application/pdf,image/jpeg,image/png,image/webp,video/mp4,video/webm" />
+                  <small>Anexe o documento que acompanha o alerta · até 10 MB*</small>
+                </label>
+                <small class="story-evidence-note">*A soma dos anexos do Story não pode exceder 10 MB.</small>
+              </div>
+              <p id="storyFormError" class="error" role="alert"></p>
+              <button class="btn primary full" type="submit">Publicar Story <span>→</span></button>
+            </form>
+          </section>
+        </div>
+        <div id="storyViewerModal" class="modal-backdrop hidden">
+          <section class="modal story-viewer-modal" aria-label="Story da comunidade">
+            <button class="modal-close" type="button" data-close="storyViewerModal" aria-label="Fechar Story">×</button>
+            <div class="story-viewer-progress"><span id="storyViewerProgress"></span></div>
+            <header class="story-viewer-header">
+              <span id="storyViewerAvatar" class="feed-story-viewer-avatar">G</span>
+              <div><strong id="storyViewerAuthor"></strong><small id="storyViewerMeta"></small></div>
+            </header>
+            <div id="storyViewerMedia" class="story-viewer-media hidden"></div>
+            <div class="story-viewer-copy">
+              <span id="storyViewerAlert" class="story-viewer-alert hidden">BO anexado · não verificado</span>
+              <p id="storyViewerContent"></p>
+              <a id="storyViewerEvidence" class="mini-btn hidden" target="_blank" rel="noopener">Baixar meu BO</a>
+            </div>
+            <button id="deleteStoryButton" class="mini-btn danger hidden" type="button">Excluir meu Story</button>
+          </section>
+        </div>
+        <section id="view-alerts" class="view hidden">
+          <div class="view-intro alert-page-intro">
+            <div class="alert-page-heading">
+              <span class="eyebrow">CENTRAL DE MONITORAMENTO</span>
+              <h2>Alertas e monitoramento</h2>
+              <p>Consulte seus registros e mantenha informações importantes organizadas.</p>
+            </div>
+            <button class="btn primary alert-create-button" id="createAlertBtn">
+              <span aria-hidden="true">＋</span> Novo alerta
+            </button>
+          </div>
+          <section class="alerts-overview" aria-label="Resumo dos alertas">
+            <div class="alerts-overview-copy">
+              <span class="alerts-overview-icon" aria-hidden="true">⚑</span>
+              <div>
+                <span class="eyebrow">SEU RADAR DE RISCO</span>
+                <h3>Acompanhe o que merece atenção</h3>
+                <p>Registre ocorrências com contexto e nível de gravidade para facilitar o acompanhamento.</p>
+              </div>
+            </div>
+            <div class="alerts-overview-stats">
+              <div class="alert-stat">
+                <strong id="alertsTotalCount">0</strong>
+                <span>registros</span>
+              </div>
+              <div class="alert-stat alert-stat-urgent">
+                <strong id="alertsUrgentCount">0</strong>
+                <span>alta atenção</span>
+              </div>
+            </div>
+          </section>
+          <div class="alerts-section-heading">
+            <div>
+              <span class="eyebrow">HISTÓRICO</span>
+              <h3>Seus alertas</h3>
+            </div>
+            <span class="alerts-local-label"><span aria-hidden="true"></span> Registros deste dispositivo</span>
+          </div>
+          <div id="alertList" class="alert-grid" aria-live="polite"></div>
+        </section>
+        <section id="view-settings" class="view hidden">
+          <div class="view-intro">
+            <div>
+              <h2>Configurações e privacidade</h2>
+              <p>Controle sua conta, segurança, notificações e suporte.</p>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <div class="panel">
+              <div class="panel-head compact">
+                <div>
+                  <span class="eyebrow">PERFIL</span>
+                  <h3>Editar perfil</h3>
+                </div>
+              </div>
+              <form id="profileForm" class="stack-form">
+                <label>
+                  Nome
+                  <input id="profileNameInput" name="name" />
+                </label>
+                <label>
+                  E-mail
+                  <input id="profileEmailInput" name="email" type="email" />
+                </label>
+                <label>
+                  Bio
+                  <textarea
+                    id="profileBioInput"
+                    name="bio"
+                    rows="3"
+                    placeholder="Como você se apresenta para a comunidade?"
+                  ></textarea>
+                </label>
+                <button class="btn primary" type="submit">Salvar perfil</button>
+              </form>
+            </div>
+            <div class="panel">
+              <div class="panel-head compact">
+                <div>
+                  <span class="eyebrow">SEGURANÇA</span>
+                  <h3>Privacidade</h3>
+                </div>
+              </div>
+              <div class="toggle-list" id="settingsList"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head compact">
+                <div>
+                  <span class="eyebrow">SUPORTE</span>
+                  <h3>Ajuda e suporte</h3>
+                </div>
+              </div>
+              <div class="support-box">
+                <p>Precisa de ajuda com uma câmera, denúncia ou compartilhamento?</p>
+                <button class="btn secondary" type="button" id="supportBtn">
+                  Falar com suporte
+                </button>
+              </div>
+              <div class="support-box muted-box">
+                <p>Central de ajuda para gestão de contas, segurança e configurações avançadas.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="view-map" class="view hidden">
+          <div class="view-intro map-page-intro">
+            <div class="map-page-heading">
+              <span class="eyebrow">VISÃO DA COMUNIDADE</span>
+              <h2>Mapa de câmeras</h2>
+              <p>Explore câmeras compartilhadas publicamente pelos próprios proprietários.</p>
+            </div>
+            <button class="btn primary map-register-button" data-goto="cameras">
+              <span aria-hidden="true">＋</span> Cadastrar câmera
+            </button>
+          </div>
+          <div class="map-trust-row" aria-label="Informações do mapa">
+            <div class="map-trust-item">
+              <span aria-hidden="true">⌖</span>
+              <div><strong>Descubra ao seu redor</strong><small>Explore câmeras por local</small></div>
+            </div>
+            <div class="map-trust-item">
+              <span aria-hidden="true">✓</span>
+              <div><strong>Compartilhamento voluntário</strong><small>Publicadas pelo proprietário</small></div>
+            </div>
+            <div class="map-trust-item">
+              <span aria-hidden="true">⌑</span>
+              <div><strong>Privacidade respeitada</strong><small>Câmeras privadas não aparecem</small></div>
+            </div>
+          </div>
+          <section class="map-explorer" aria-label="Explorar mapa de câmeras">
+            <div class="map-toolbar">
+              <label class="map-search-field" for="mapSearch">
+                <span aria-hidden="true">⌕</span>
+                <input id="mapSearch" type="search" placeholder="Pesquisar por câmera ou local…" />
+              </label>
+              <div class="map-toolbar-actions">
+                <button class="btn secondary small" id="refreshMap" type="button">
+                  <span aria-hidden="true">↻</span> Atualizar
+                </button>
+                <button class="btn secondary small" id="locateMeBtn" type="button">
+                  <span aria-hidden="true">◎</span> Minha localização
+                </button>
+              </div>
+            </div>
+            <div class="map-status-row">
+              <span class="map-status"><i></i> Mapa da comunidade</span>
+              <span id="mapSearchStatus" class="map-search-status" aria-live="polite"></span>
+              <span class="map-search-attribution">Pesquisa de locais: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a></span>
+              <span id="mapLocationStatus" class="map-location-status">Localização ainda não obtida</span>
+            </div>
+            <div class="google-map-wrap">
+              <div
+                id="googleMap"
+                class="community-map"
+                role="application"
+                aria-label="Mapa da comunidade"
+              ></div>
+              <div class="map-overlay-card">
+                <span class="map-overlay-icon" aria-hidden="true">⌖</span>
+                <div>
+                  <b id="publicCameraTotal">0 câmeras públicas</b>
+                  <small>Visíveis por escolha dos proprietários</small>
+                </div>
+              </div>
+            </div>
+            <div class="map-results-heading">
+              <div>
+                <span class="eyebrow">RESULTADOS DO MAPA</span>
+                <h3>Câmeras públicas</h3>
+              </div>
+              <span class="map-results-note">Solicite acesso ao proprietário quando disponível</span>
+            </div>
+            <div id="publicCameraList" class="camera-list map-camera-list"></div>
+            <div class="privacy-banner map-privacy-notice">
+              <span class="map-privacy-icon" aria-hidden="true">⌑</span>
+              <span><b>Privacidade em primeiro lugar.</b> Apenas câmeras publicadas voluntariamente aparecem aqui. Câmeras privadas não são exibidas nem compartilhadas automaticamente.</span>
+            </div>
+          </section>
+        </section>
+        <section id="view-cameras" class="view hidden">
+          <div class="view-intro camera-page-intro">
+            <div>
+              <span class="eyebrow">PAINEL DE DISPOSITIVOS</span>
+              <h2>Minhas câmeras</h2>
+              <p>Anexe o BO, configure o dispositivo e acesse sua transmissão privada.</p>
+            </div>
+            <button class="btn primary camera-add-button" id="openCameraModal">
+              <span aria-hidden="true">＋</span> Nova câmera
+            </button>
+          </div>
+          <div class="camera-trust-row" aria-label="Princípios de segurança das câmeras">
+            <div class="camera-trust-item">
+              <span aria-hidden="true">⌑</span>
+              <div><strong>Privada por padrão</strong><small>Você controla quem pode assistir</small></div>
+            </div>
+            <div class="camera-trust-item">
+              <span aria-hidden="true">✓</span>
+              <div><strong>Acesso protegido</strong><small>Transmissões não são públicas</small></div>
+            </div>
+            <div class="camera-trust-item">
+              <span aria-hidden="true">↗</span>
+              <div><strong>Compartilhamento consciente</strong><small>Autorize cada acesso</small></div>
+            </div>
+          </div>
+          <div class="notice camera-security-notice">
+            <span class="camera-notice-icon" aria-hidden="true">i</span>
+            <span><b>Cadastro com segurança.</b> Anexe o BO antes dos dados da câmera. Após o cadastro, o acesso é liberado automaticamente apenas para sua conta. A transmissão não é pública nem compartilhada automaticamente.</span>
+          </div>
+          <section class="camera-section" aria-labelledby="cameraLibraryTitle">
+            <div class="camera-section-heading">
+              <div>
+                <span class="eyebrow">SEU ESPAÇO</span>
+                <h3 id="cameraLibraryTitle">Dispositivos cadastrados</h3>
+                <p>Gerencie suas câmeras e acesse os recursos disponíveis.</p>
+              </div>
+              <span class="camera-section-mark" aria-hidden="true">01</span>
+            </div>
+          <div id="myCameraList" class="camera-list owned-list"></div>
+          </section>
+          <section id="cameraRequestsSection" class="subsection hidden">
+            <div class="camera-section-heading">
+              <div>
+                <span class="eyebrow">CONTROLE DE PRIVACIDADE</span>
+                <h3>Solicitações de acesso</h3>
+                <p>Revise e gerencie quem pode acessar suas transmissões.</p>
+              </div>
+              <span class="camera-section-mark" aria-hidden="true">02</span>
+            </div>
+            <div id="cameraRequestsList" class="camera-list"></div>
+          </section>
+          <section id="sharedCamerasSection" class="subsection hidden">
+            <div class="camera-section-heading">
+              <div>
+                <span class="eyebrow">REDE DE CONFIANÇA</span>
+                <h3>Câmeras compartilhadas com você</h3>
+                <p>Dispositivos cujo proprietário autorizou seu acesso.</p>
+              </div>
+              <span class="camera-section-mark" aria-hidden="true">03</span>
+            </div>
+            <div id="sharedCameraList" class="camera-list"></div>
+          </section>
+          <div id="emptyCameras" class="empty-state camera-empty-state">
+            <span class="empty-icon" aria-hidden="true">▣</span>
+            <span class="camera-empty-kicker">PRONTO PARA COMEÇAR?</span>
+            <h3>Nenhuma câmera cadastrada</h3>
+            <p>Adicione sua primeira câmera para organizar seus dispositivos e acompanhar tudo em um só lugar.</p>
+            <button class="btn primary" id="emptyAddCamera">Cadastrar primeira câmera <span aria-hidden="true">→</span></button>
+            <small>O cadastro é privado e pode ser feito em poucos passos.</small>
+          </div>
+        </section>
+        <section id="view-recordings" class="view hidden">
+          <div class="view-intro">
+            <div>
+              <h2>Transmissões e gravações</h2>
+              <p>
+                Consulte gravações próprias, transmissões ao vivo e acessos compartilhados com
+                controle e privacidade.
+              </p>
+            </div>
+          </div>
+          <div class="panel recordings-dashboard">
+            <div class="recordings-hero">
+              <div class="recordings-hero-copy">
+                <span class="eyebrow">VÍDEO PRIVADO</span>
+                <h3>Monitoramento com acesso organizado por origem</h3>
+              </div>
+              <div class="recordings-stats">
+                <div class="stat-pill">
+                  <strong id="recordingsStatMine">0</strong>
+                  <small>próprias</small>
+                </div>
+                <div class="stat-pill">
+                  <strong id="recordingsStatLive">0</strong>
+                  <small>ao vivo</small>
+                </div>
+                <div class="stat-pill">
+                  <strong id="recordingsStatShared">0</strong>
+                  <small>compart.</small>
+                </div>
+              </div>
+            </div>
+            <div class="recording-tabs" aria-label="Seleção de origem das gravações">
+              <button type="button" class="recording-tab is-active" data-recording-tab="mine">
+                Minhas gravações
+              </button>
+              <button type="button" class="recording-tab" data-recording-tab="live">
+                Ao vivo
+              </button>
+              <button type="button" class="recording-tab" data-recording-tab="shared">
+                Compartilhadas
+              </button>
+            </div>
+            <div class="recordings-layout">
+              <aside class="recordings-sidebar">
+                <div class="recordings-filters">
+                  <label>Câmera<select id="recordingCameraFilter"></select></label>
+                  <label>Data inicial<input id="recordingFrom" type="date" /></label>
+                  <label>Data final<input id="recordingTo" type="date" /></label>
+                  <label>Horário inicial<input id="recordingTimeFrom" type="time" /></label>
+                  <label>Horário final<input id="recordingTimeTo" type="time" /></label>
+                  <button class="btn primary" id="searchRecordings">Buscar gravações</button>
+                </div>
+              </aside>
+              <div class="recordings-content">
+                <p id="recordingsMessage" class="muted" aria-live="polite">
+                  Selecione uma câmera própria ou compartilhada para consultar gravações disponíveis.
+                </p>
+                <div id="recordingList" class="recording-list"></div>
+                <div id="recordingPlayerWrap" class="recording-player-wrap hidden">
+                  <div class="panel-head compact">
+                    <h3 id="recordingPlayerTitle">Reproduzindo gravação</h3>
+                    <button class="mini-btn" id="closeRecordingPlayer">Fechar</button>
+                  </div>
+                  <video id="recordingPlayer" controls playsinline preload="metadata"></video>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div id="liveCameraModal" class="modal-backdrop hidden">
+          <section class="modal live-camera-modal">
+            <button class="modal-close" data-close="liveCameraModal" aria-label="Fechar">×</button>
+            <span class="eyebrow">TRANSMISSÃO PRIVADA</span>
+            <h2 id="liveCameraTitle">Câmera ao vivo</h2>
+            <p id="liveCameraStatus" class="muted">Verificando conexão...</p>
+            <video id="liveCameraPlayer" controls autoplay muted playsinline></video>
+          </section>
+        </div>
+        <section id="view-messages" class="view hidden">
+          <div class="view-intro">
+            <div>
+              <h2>Mensagens</h2>
+              <p>Conversas privadas e grupos, em um só lugar.</p>
+            </div>
+            <button class="btn primary" data-goto="contacts">＋ Nova conversa</button>
+          </div>
+          <div class="messaging-layout">
+            <aside class="conversation-list panel">
+              <div class="conversation-search">
+                <input id="conversationSearch" placeholder="Pesquisar conversas" />
+              </div>
+              <div id="conversationItems">
+                <div class="empty-inline">Suas conversas aparecerão aqui.</div>
+              </div>
+            </aside>
+            <section class="chat-panel panel">
+              <div class="chat-empty" id="chatEmpty">
+                <span>▤</span>
+                <h3>Suas conversas, sua comunidade</h3>
+                <p>Escolha uma conversa ou adicione um contato para começar.</p>
+                <button class="btn primary" data-goto="contacts">Encontrar contatos</button>
+              </div>
+              <div id="chatActive" class="hidden chat-active">
+                <div class="chat-header">
+                  <span class="avatar" id="chatAvatar">G</span>
+                  <div><b id="chatName">Conversa</b><small id="chatSubtitle">Privada</small></div>
+                  <button id="shareCameraBtn" class="btn secondary small">
+                    ↗ Compartilhar câmera
+                  </button>
+                </div>
+                <div id="chatMessages" class="chat-messages"></div>
+                <div
+                  id="chatMediaPreview"
+                  class="chat-media-preview hidden"
+                  aria-live="polite"
+                ></div>
+                <form id="messageForm" class="message-compose">
+                  <button
+                    type="button"
+                    id="attachBtn"
+                    class="attach-btn"
+                    title="Adicionar fotos ou vídeos"
+                    aria-label="Adicionar fotos ou vídeos"
+                  >
+                    ＋</button
+                  ><input
+                    id="messageInput"
+                    placeholder="Escreva uma mensagem…"
+                    autocomplete="off"
+                  /><button class="send-btn" type="submit" aria-label="Enviar mensagem">➤</button>
+                </form>
+                <input
+                  id="mediaInput"
+                  class="hidden"
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                />
+              </div>
+            </section>
+          </div>
+          <div id="chatImageViewer" class="modal-backdrop hidden">
+            <section class="modal chat-image-viewer" aria-label="Visualizador de fotos">
+              <button class="modal-close" data-close="chatImageViewer" aria-label="Fechar foto">
+                ×
+              </button>
+              <button
+                id="chatImageViewerPrevious"
+                class="chat-image-viewer-nav previous"
+                type="button"
+                aria-label="Foto anterior"
+              >
+                ‹
+              </button>
+              <img id="chatImageViewerImage" alt="" />
+              <button
+                id="chatImageViewerNext"
+                class="chat-image-viewer-nav next"
+                type="button"
+                aria-label="Próxima foto"
+              >
+                ›
+              </button>
+              <div class="chat-image-viewer-caption">
+                <span id="chatImageViewerCaption"></span>
+                <small id="chatImageViewerPosition"></small>
+              </div>
+            </section>
+          </div>
+        </section>
+        <section id="view-contacts" class="view hidden">
+          <div class="view-intro">
+            <div>
+              <h2>Contatos e grupos</h2>
+              <p>Monte sua rede de confiança e converse com quem quiser.</p>
+            </div>
+            <button class="btn primary" id="addContactBtn">＋ Adicionar contato</button>
+          </div>
+          <div class="contact-tabs">
+            <button class="tab active" data-tab="contacts">Meus contatos</button
+            ><button class="tab" data-tab="groups">Meus grupos</button>
+          </div>
+          <div id="contactsPane">
+            <div class="contact-toolbar">
+              <input id="contactSearch" placeholder="Buscar por nome ou e-mail" /><span
+                class="muted"
+                id="contactCountLabel"
+                >0 contatos</span
+              >
+            </div>
+            <div id="contactList" class="people-grid"></div>
+            <div id="emptyContacts" class="empty-state">
+              <span class="empty-icon">♧</span>
+              <h3>Construa sua rede de confiança</h3>
+              <p>Adicione pessoas pelo e-mail cadastrado para iniciar conversas privadas.</p>
+              <button class="btn primary" id="emptyAddContact">Adicionar contato</button>
+            </div>
+          </div>
+          <div id="groupsPane" class="hidden">
+            <div class="contact-toolbar">
+              <p class="muted">Grupos privados com participantes escolhidos por você.</p>
+              <button class="btn primary small" id="createGroupBtn">＋ Criar grupo</button>
+            </div>
+            <div id="groupList" class="people-grid"></div>
+            <div id="emptyGroups" class="empty-state">
+              <span class="empty-icon">◉</span>
+              <h3>Crie seu primeiro grupo</h3>
+              <p>Família, vizinhos ou pessoas de confiança: você escolhe os participantes.</p>
+              <button class="btn primary" id="emptyCreateGroup">Criar grupo</button>
+            </div>
+          </div>
+        </section>
+        <footer class="app-footer">
+          <span>© 2026 Guardian</span
+          ><span>Comunidade com responsabilidade <b>·</b> Privacidade por padrão</span>
+        </footer>
+      </main>
+    </div>
+    <div id="cameraModal" class="modal-backdrop hidden">
+      <section class="modal">
+        <button class="modal-close" data-close="cameraModal">×</button
+        ><span class="eyebrow">CADASTRO SEGURO</span>
+        <h2 id="cameraModalTitle">Cadastrar câmera</h2>
+        <p class="muted">Informe o boletim de ocorrência antes dos dados da câmera.</p>
+        <ol class="camera-steps" aria-label="Etapas do cadastro">
+          <li class="active" data-step-indicator="1"><span>1</span> Boletim de ocorrência</li>
+          <li data-step-indicator="2"><span>2</span> Dados da câmera</li>
+        </ol>
+        <form id="cameraForm">
+          <div class="camera-form-step" id="cameraReportStep">
+            <label
+              >Número do BO<input
+                name="boNumber"
+                required
+                maxlength="40"
+                autocomplete="off"
+                placeholder="Ex.: 2026/123456"
+            /></label>
+            <label>Data de registro do BO<input name="boDate" type="date" required /></label>
+            <label class="file-field">
+              Arquivo do boletim de ocorrência
+              <input
+                name="reportFile"
+                type="file"
+                accept="application/pdf,image/jpeg,image/png,image/webp,video/mp4,video/webm,.pdf,.jpg,.jpeg,.png,.webp,.mp4,.webm"
+                required
+              />
+              <small>PDF, JPG, PNG, WebP, MP4 ou WebM · até 10 MB</small>
+            </label>
+            <div class="notice compact-notice">
+              <span>🔒</span>
+              <span
+                >O arquivo e os dados do BO serão armazenados em privado. A câmera será liberada
+                automaticamente apenas para sua conta; o envio não comprova a autenticidade do
+                documento.</span
+              >
+            </div>
+            <p class="error" id="cameraError" role="alert"></p>
+            <button class="btn primary full" id="continueCameraForm" type="button">
+              Continuar para os dados da câmera
+            </button>
+          </div>
+          <div class="camera-form-step hidden" id="cameraDetailsStep">
+            <label
+              >Nome da câmera<input
+                name="name"
+                required
+                maxlength="80"
+                placeholder="Ex.: Entrada da residência" /></label
+            ><label
+              >Endereço ou referência<input
+                name="location"
+                required
+                maxlength="180"
+                placeholder="Rua, bairro ou ponto de referência"
+            /></label>
+            <div class="form-row">
+              <label
+                >Latitude (opcional)<input
+                  name="latitude"
+                  type="number"
+                  step="any"
+                  placeholder="-12.35" /></label
+              ><label
+                >Longitude (opcional)<input
+                  name="longitude"
+                  type="number"
+                  step="any"
+                  placeholder="-38.38"
+              /></label>
+            </div>
+            <label
+              >Endereço RTSP/RTSPS<input
+                name="rtspUrl"
+                type="url"
+                required
+                maxlength="2048"
+                autocomplete="off"
+                placeholder="rtsp://192.168.1.50:554/caminho-fornecido-pelo-fabricante"
+            /></label>
+            <p class="tiny muted">
+              Informe o endereço fornecido pelo fabricante. Use a rede privada autorizada;
+              credenciais serão criptografadas no servidor e não salvas no navegador. A aplicação
+              precisa ser acessada por HTTPS para enviar esse dado.
+            </p>
+            <div class="notice compact-notice">
+              <span>ⓘ</span>
+              <span
+                >Após o cadastro, o acesso ao stream será privado e restrito ao proprietário. Nenhum
+                stream será publicado ou compartilhado automaticamente.</span
+              >
+            </div>
+            <p class="error" id="cameraDetailsError" role="alert"></p>
+            <div class="camera-form-actions">
+              <button class="btn secondary" id="backCameraForm" type="button">Voltar</button>
+              <button class="btn primary" id="cameraSubmitButton" type="submit">
+                Cadastrar e solicitar liberação
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </div>
+    <div id="alertModal" class="modal-backdrop hidden">
+      <section class="modal">
+        <button class="modal-close" data-close="alertModal" aria-label="Fechar">×</button>
+        <span class="eyebrow">COMUNIDADE</span>
+        <h2>Novo alerta</h2>
+        <p class="muted">Descreva o motivo e escolha o nível de gravidade.</p>
+        <form id="alertForm">
+          <label>
+            Motivo do alerta
+            <input
+              name="title"
+              required
+              maxlength="100"
+              placeholder="Ex.: Pessoa suspeita no portão"
+            />
+          </label>
+          <label>
+            Nível de gravidade
+            <select name="severity" required>
+              <option value="low">Baixo — atenção</option>
+              <option value="medium" selected>Médio — requer acompanhamento</option>
+              <option value="high">Alto — ação rápida recomendada</option>
+              <option value="critical">Crítico — emergência imediata</option>
+            </select>
+          </label>
+          <label>
+            Detalhes (opcional)
+            <textarea
+              name="details"
+              rows="4"
+              maxlength="500"
+              placeholder="O que aconteceu? Inclua somente informações úteis e verificáveis."
+            ></textarea>
+          </label>
+          <label>
+            Local (opcional)
+            <input name="location" maxlength="160" placeholder="Rua, bairro ou referência" />
+          </label>
+          <p class="notice compact-notice">
+            <span>ⓘ</span>
+            <span
+              >Este alerta será salvo neste dispositivo. Não substitui serviços de emergência.</span
+            >
+          </p>
+          <p id="alertFormError" class="error" role="alert"></p>
+          <button class="btn primary full" type="submit">Publicar alerta</button>
+        </form>
+      </section>
+    </div>
+    <div id="contactModal" class="modal-backdrop hidden">
+      <section class="modal">
+        <button class="modal-close" data-close="contactModal">×</button
+        ><span class="eyebrow">SUA COMUNIDADE</span>
+        <h2>Adicionar contato</h2>
+        <p class="muted">Use o e-mail com que a pessoa se cadastrou no Guardian.</p>
+        <form id="contactForm">
+          <label
+            >E-mail do contato<input
+              name="email"
+              type="email"
+              required
+              placeholder="pessoa@email.com"
+          /></label>
+          <p class="error" id="contactError"></p>
+          <button class="btn primary full">Enviar convite de contato</button>
+        </form>
+      </section>
+    </div>
+    <div id="groupModal" class="modal-backdrop hidden">
+      <section class="modal">
+        <button class="modal-close" data-close="groupModal">×</button
+        ><span class="eyebrow">CONVERSA EM GRUPO</span>
+        <h2>Criar grupo</h2>
+        <form id="groupForm">
+          <label
+            >Nome do grupo<input
+              name="name"
+              required
+              maxlength="70"
+              placeholder="Ex.: Vizinhos da rua" /></label
+          ><label
+            >Descrição (opcional)<input
+              name="description"
+              maxlength="140"
+              placeholder="Para que serve este grupo?" /></label
+          ><label
+            >Participantes<select name="members" id="groupMembers" multiple size="5"></select
+            ><small class="muted"
+              >Use Ctrl (Windows) ou ⌘ (Mac) para selecionar várias pessoas.</small
+            ></label
+          >
+          <p class="error" id="groupError"></p>
+          <button class="btn primary full" type="submit">Criar grupo</button>
+        </form>
+      </section>
+    </div>
+    <div id="shareModal" class="modal-backdrop hidden">
+      <section class="modal">
+        <button class="modal-close" data-close="shareModal">×</button
+        ><span class="eyebrow">COMPARTILHAMENTO</span>
+        <h2>Compartilhar uma câmera</h2>
+        <p class="muted">Escolha uma das suas câmeras para enviar nesta conversa.</p>
+        <div id="shareCameraChoices"></div>
+        <p class="muted tiny">
+          A referência não libera o vídeo. O proprietário precisa aprovar a solicitação de acesso.
+        </p>
+      </section>
+    </div>
+    <div id="toast" class="toast hidden" role="status"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/vendor/hls.min.js" defer></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6ekCXbc3NolfIh-8yEhAhEajNwWp1MzM&callback=initGoogleMaps&loading=async"
+      async
+      defer
+    ></script>
+    <script>
+      window.initGoogleMaps = function () {
+        window.guardianGoogleMapsReady = true;
+        if (typeof window.renderMapWithCurrentData === 'function') {
+          window.renderMapWithCurrentData();
+        }
+      };
+    </script>
+    <script src="/guardian.js" defer></script>
+  </body>
+</html>

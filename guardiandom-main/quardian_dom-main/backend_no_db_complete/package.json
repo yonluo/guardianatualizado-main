@@ -1,0 +1,32 @@
+{
+  "name": "camera-platform-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "start:static": "node server.js",
+    "sync-frontend": "node scripts/build_frontend_and_copy.js",
+    "db:apply-sql": "node scripts/apply_sql_to_mysql.js",
+    "db:migrate:mysql": "node scripts/migrate_mysql_schema.js",
+    "test": "node --test",
+    "format": "prettier --write \"server.js\" \"src/**/*.js\" \"public/**/*.{js,css,html}\" \"scripts/**/*.js\""
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "hls.js": "^1.7.3",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.3.0",
+    "socket.io": "^4.8.1",
+    "sqlite3": "^5.1.6",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "fs-extra": "^11.1.1",
+    "nodemon": "^3.1.4",
+    "prettier": "^3.3.3"
+  }
+}

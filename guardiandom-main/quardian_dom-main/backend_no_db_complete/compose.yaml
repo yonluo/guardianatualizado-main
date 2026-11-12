@@ -1,0 +1,94 @@
+services:
+  recordings-init:
+    image: busybox:1.36
+    user: '0:0'
+    restart: 'no'
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+    command: ['sh', '-c', 'chown 1000:1000 /recordings']
+    volumes:
+      - guardian_recordings:/recordings
+
+  backend:
+    build:
+      context: .
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the backend .env file}
+      CAMERA_ENCRYPTION_KEY: ${CAMERA_ENCRYPTION_KEY:?Set CAMERA_ENCRYPTION_KEY in the backend .env file}
+      CAMERA_LEGACY_ENCRYPTION_KEY: ${CAMERA_LEGACY_ENCRYPTION_KEY:-}
+      CAMERA_ALLOWED_NETWORKS: ${CAMERA_ALLOWED_NETWORKS:-}
+      CAMERA_ALLOWED_RTSP_PORTS: ${CAMERA_ALLOWED_RTSP_PORTS:-554,8554,322}
+      CAMERA_REVIEWER_IDS: ${CAMERA_REVIEWER_IDS:-}
+      CAMERA_RECORDING_RETENTION_DAYS: ${CAMERA_RECORDING_RETENTION_DAYS:-30}
+      DB_TYPE: mysql
+      DB_HOST: ${DB_HOST_DOCKER:-host.docker.internal}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USER: ${DB_USER:?Set DB_USER for MySQL in the backend .env file}
+      DB_PASS: ${DB_PASS:?Set DB_PASS for MySQL in the backend .env file}
+      DB_NAME: ${DB_NAME:-angel_guardian}
+      MEDIAMTX_API_URL: http://mediamtx:9997
+      MEDIAMTX_API_USER: ${MEDIAMTX_API_USER:?Set MEDIAMTX_API_USER in the backend .env file}
+      MEDIAMTX_API_PASSWORD: ${MEDIAMTX_API_PASSWORD:?Set MEDIAMTX_API_PASSWORD in the backend .env file}
+      MEDIAMTX_HLS_URL: http://mediamtx:8888
+      MEDIAMTX_HLS_USER: ${MEDIAMTX_HLS_USER:?Set MEDIAMTX_HLS_USER in the backend .env file}
+      MEDIAMTX_HLS_PASSWORD: ${MEDIAMTX_HLS_PASSWORD:?Set MEDIAMTX_HLS_PASSWORD in the backend .env file}
+      MEDIAMTX_INTERNAL_HOSTS: mediamtx
+      MEDIAMTX_RECORDINGS_PATH: /recordings
+      RECORDINGS_DIRECTORY: /recordings
+    ports:
+      - '127.0.0.1:${PORT:-4000}:4000'
+    volumes:
+      - guardian_recordings:/recordings:ro
+    depends_on:
+      recordings-init:
+        condition: service_completed_successfully
+      mediamtx:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:4000/login').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  mediamtx:
+    image: bluenviron/mediamtx:1.21.3
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    user: '1000:1000'
+    environment:
+      MTX_API: 'yes'
+      MTX_APIADDRESS: ':9997'
+      MTX_HLS: 'yes'
+      MTX_HLSADDRESS: ':8888'
+      MTX_AUTHMETHOD: internal
+      MTX_AUTHINTERNALUSERS_0_USER: ${MEDIAMTX_API_USER:?Set MEDIAMTX_API_USER in the backend .env file}
+      MTX_AUTHINTERNALUSERS_0_PASS: ${MEDIAMTX_API_PASSWORD:?Set MEDIAMTX_API_PASSWORD in the backend .env file}
+      MTX_AUTHINTERNALUSERS_0_PERMISSIONS_0_ACTION: api
+      MTX_AUTHINTERNALUSERS_1_USER: ${MEDIAMTX_HLS_USER:?Set MEDIAMTX_HLS_USER in the backend .env file}
+      MTX_AUTHINTERNALUSERS_1_PASS: ${MEDIAMTX_HLS_PASSWORD:?Set MEDIAMTX_HLS_PASSWORD in the backend .env file}
+      MTX_AUTHINTERNALUSERS_1_PERMISSIONS_0_ACTION: read
+    volumes:
+      - guardian_recordings:/recordings
+    depends_on:
+      recordings-init:
+        condition: service_completed_successfully
+
+volumes:
+  guardian_recordings:

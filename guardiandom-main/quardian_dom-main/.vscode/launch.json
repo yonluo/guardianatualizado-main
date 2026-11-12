@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Guardian: iniciar backend",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend_no_db_complete/server.js",
+      "cwd": "${workspaceFolder}/backend_no_db_complete",
+      "envFile": "${workspaceFolder}/backend_no_db_complete/.env",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
